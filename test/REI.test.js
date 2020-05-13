@@ -39,7 +39,6 @@ contract('REI', (accounts) => {
             const event = result.logs[0].args
             //console.log(event)
             //console.log(contract._locationMap)
-            //console.log(event.tokenId)
             assert.equal(event.tokenId,TokenId,'id is correct')
             assert.equal(event.from, '0x0000000000000000000000000000000000000000', 'from is correct')
             assert.equal(event.to, accounts[0],'to is correct')
@@ -82,5 +81,33 @@ contract('REI', (accounts) => {
             console.log(newOwner)
             assert.equal(newOwner,toAddress,"transfer complete")
         })
+    })
+
+    describe('burning', async () => {
+        it('burns a token', async () => {
+            const totalSupply = await contract.totalSupply()
+
+            let tokenId = "37469746472611036771321737221860966457933893121606967751051525161688519460473"
+            let oldOwner = await contract.ownerOf(tokenId)
+            console.log("OLD OWNER")
+            console.log(oldOwner)
+            
+            /*let result = []
+            let tmp1
+            for(var i = 1; i <= totalSupply; i++) {
+                tmp1 = await contract._idExists(i-1)
+                result.push(tmp1)
+            }
+            console.log(result)*/
+
+            
+            contract.burn(tokenId)
+
+            let idExist = await contract._idExists(tokenId)
+            
+            //console.log(idExist)
+            assert.equal(idExist,false)
+        })
+        
     })
 })

@@ -7,7 +7,9 @@ import "../../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
 contract REI is ERC721 {
     string[] public locations;
 
-    mapping(uint => bool) _idExists;
+    //TODO: make mapping of address to list of tokens for internal tracking of who has what token
+
+    mapping(uint => bool) public _idExists;
     mapping(uint => string) public _idMap;
     mapping(string => uint) public _locationMap;
 
@@ -30,6 +32,7 @@ contract REI is ERC721 {
         //TODO: Change what we use for the ID on the token
         //hashed value of address (street #, street, zip) plus timestamp, make dict with key the hash and the value the address
         _mint(msg.sender, _id);
+        //call ERC20 mint (msg.sender,hashed_data)
 
         locations.push(_location);
         _idExists[_id] = true;
@@ -46,23 +49,7 @@ contract REI is ERC721 {
 
     }
 
-    /*function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ownerOf(tokenId) == from, "ERC721: transfer of token that is not own");
-        require(to != address(0), "ERC721: transfer to the zero address");
-
-        _beforeTokenTransfer(from, to, tokenId);
-
-        // Clear approvals from the previous owner
-        _approve(address(0), tokenId);
-
-        _holderTokens[from].remove(tokenId);
-        _holderTokens[to].add(tokenId);
-
-        _tokenOwners.set(tokenId, to);
-
-        emit Transfer(from, to, tokenId);
-    }*/
-    function stringToUint(string memory s) public returns (uint result) {
+    function stringToUint(string memory s) public pure returns (uint result) {
         bytes memory b = bytes(s);
         uint i;
         result = 0;
@@ -73,4 +60,37 @@ contract REI is ERC721 {
             }
         }
     }
+
+
+    function burn(uint256 _tokenId) public {
+        require(_idExists[_tokenId]);
+
+        _burn(_tokenId);
+        _idExists[_tokenId] = false;
+        string memory _loc = _idMap[_tokenId];
+        _idMap[_tokenId] = '';
+        _locationMap[_loc] = 0;
+        
+        //TODO: figure this out vvvv need to see how to get the index of that location (_loc) in the array
+        //delete locations[_loc];
+    }
+    /*function _burn(uint256 tokenId) internal virtual {
+        address owner = ownerOf(tokenId);
+
+        _beforeTokenTransfer(owner, address(0), tokenId);
+
+        // Clear approvals
+        _approve(address(0), tokenId);
+
+        // Clear metadata (if any)
+        if (bytes(_tokenURIs[tokenId]).length != 0) {
+            delete _tokenURIs[tokenId];
+        }
+
+        _holderTokens[owner].remove(tokenId);
+
+        _tokenOwners.remove(tokenId);
+
+        emit Transfer(owner, address(0), tokenId);
+    }*/
 }
