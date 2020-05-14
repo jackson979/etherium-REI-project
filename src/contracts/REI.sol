@@ -1,8 +1,27 @@
 pragma solidity ^0.6.0;
 
+import "../../src/contracts/RFT.sol";
 import "../../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+//import "../../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-// it doesnt matter. the --save does it in the directory. may have to do --save-dev
+/*contract RFT is ERC20 {
+    constructor() ERC20("RFT Token", "REI_ID") public {
+        _setupDecimals(0);
+    }
+
+    function mint(address toAddress,uint256 amount) public {
+        _mint(toAddress,amount);
+    }
+    function _mint(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), account, amount);
+
+        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account].add(amount);
+        emit Transfer(address(0), account, amount);
+    }
+}*/
 
 contract REI is ERC721 {
     string[] public locations;
@@ -12,6 +31,7 @@ contract REI is ERC721 {
     mapping(uint => bool) public _idExists;
     mapping(uint => string) public _idMap;
     mapping(string => uint) public _locationMap;
+    RFT public rft;
 
     constructor() ERC721("REI Token", "REIADDRESS") public {
     }
@@ -32,7 +52,11 @@ contract REI is ERC721 {
         //TODO: Change what we use for the ID on the token
         //hashed value of address (street #, street, zip) plus timestamp, make dict with key the hash and the value the address
         _mint(msg.sender, _id);
+
         //call ERC20 mint (msg.sender,hashed_data)
+        //RFT rft;
+        //rft = new RFT();
+        //rft.mint(msg.sender,100);
 
         locations.push(_location);
         _idExists[_id] = true;
