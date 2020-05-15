@@ -1,4 +1,5 @@
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
 import "../../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
@@ -18,6 +19,15 @@ contract DNFT is ERC721 {
 
     string[] public locations;
     uint256[] public tokenIds;
+
+    string[] private activeLocations;
+    uint256[] private activeTokenIds;
+
+    uint256[] private ownerTokens;
+    uint256[] private ownerShares;
+
+    // user registry 
+    //address[] private activeUsers;
 
     // Percentage of ownership over a token (address of owner => tokenId => %ofToken)
     mapping(address => mapping(uint256 => uint256)) ownerToTokenShare;
@@ -78,6 +88,7 @@ contract DNFT is ERC721 {
 
         locations.push(_location);
         tokenIds.push(_tokenId);
+        //activeUsers.push(msg.sender);
 
         mintedToken[_tokenId] = true;
 
@@ -117,6 +128,81 @@ contract DNFT is ERC721 {
         mintedToken[_tokenId] = false;
         ownerToTokenShare[msg.sender][_tokenId] = 0;
         tokenToOwnersHoldings[_tokenId][msg.sender] = 0;
+    }
+
+    // ------------------------------ Getter functions (public functions) -----------------------------
+    
+    // Get all location assets active
+    function allLocations() public returns(string[] memory locations) {
+        delete activeLocations;
+
+        for (uint i=0; i < locations.length; i++) {
+            if (mintedToken[tokenIds[i]] == true) {
+                activeLocations.push(locations[i]);
+            }
+        }
+        return activeLocations;
+    }
+
+    // Get all tokenIds active
+    function allTokenIds() public returns(uint256[] memory tokens) {
+        delete activeTokenIds;
+
+        for (uint i=0; i < tokenIds.length; i++) {
+            if (mintedToken[tokenIds[i]] == true) {
+                activeTokenIds.push(tokenIds[i]);
+            }
+        }
+        return activeTokenIds;
+    }
+
+    // Check if an address is a majority owner
+    function majorityOwner(address _user, uint256 _tokenId) public view returns(bool majority) {
+        bool majority = false;
+
+        if (ownerToTokenShare[_user][_tokenId] > 50) {
+            majority = true;
+        }
+        
+        return majority;
+    }
+
+    // Get addresses of owners and the shares of a token
+    /*function tokenOwners(uint256 _tokenId) public returns(address[] memory owners, uint256[] memory shares) {
+        uint256 numUsers = tokenToOwnersHoldings[_tokenId].length;
+
+        address[] memory users;
+        uint256[] memory shrs;
+
+        for(int i = 0; i < numUsers; i++) {
+            if(tokenToOwnersHoldings[_tokenId][i])
+        }
+
+    }*/
+
+    // Get all shares for a specific owner 
+    function allOwnerShares(address _user) public returns(uint256[] memory tokens, uint256[] memory shares) {
+        
+        delete ownerTokens;
+        delete ownerShares;
+
+        for (uint i=0; i < tokenIds.length; i++) {
+
+            uint256 amountOfShares = ownerToTokenShare[_user][tokenIds[i]];
+
+            if (amountOfShares > 0) {
+                ownerTokens.push(tokenIds[i]);
+                ownerShares.push(amountOfShares);
+            }
+        }
+
+        return (ownerTokens, ownerShares);
+
+    }
+
+    // Get the number of shares of a token an owner has 
+    function ownerSharesforToken(address _user, uint256 _tokenId) public view returns(uint256 amountOfShares) {
+        return ownerToTokenShare[_user][_tokenId];
     }
 
     // ------------------------------ Helper functions (internal functions) ------------------------------
