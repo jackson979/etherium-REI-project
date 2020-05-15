@@ -63,6 +63,7 @@ contract('DNFT', (accounts) => {
                 location = await contract.locations(i-1)
                 result.push(location)
             }
+            //console.log(await contract.locations(0))
 
             let expected = ['123 Main St., Austin, Tx, 78705','121 Main St., Austin, Tx, 78705','122 Main St., Austin, Tx, 78705','124 Main St., Austin, Tx, 78705']
             assert.equal(result.join(','),expected.join(','),'4 unique tokens minted')

@@ -133,6 +133,7 @@ contract DNFT is ERC721 {
     // ------------------------------ Getter functions (public functions) -----------------------------
     
     // Get all location assets active
+    /* TODO: TBD WHETHER WILL IMPLEMENT OR TEST
     function allLocations() public returns(string[] memory locations) {
         delete activeLocations;
 
@@ -142,7 +143,7 @@ contract DNFT is ERC721 {
             }
         }
         return activeLocations;
-    }
+    }*/
 
     // Get all tokenIds active
     function allTokenIds() public returns(uint256[] memory tokens) {
@@ -157,6 +158,7 @@ contract DNFT is ERC721 {
     }
 
     // Check if an address is a majority owner
+    /*TODO: IMPLEMENT MAYBE AND TEST??
     function majorityOwner(address _user, uint256 _tokenId) public view returns(bool majority) {
         bool majority = false;
 
@@ -165,7 +167,7 @@ contract DNFT is ERC721 {
         }
         
         return majority;
-    }
+    }*/
 
     // Get addresses of owners and the shares of a token
     /*function tokenOwners(uint256 _tokenId) public returns(address[] memory owners, uint256[] memory shares) {
