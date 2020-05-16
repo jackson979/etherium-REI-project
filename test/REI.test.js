@@ -81,6 +81,25 @@ contract('DNFT', (accounts) => {
         })
     })
 
+    describe('helper functions', async () => {
+        it('returns all locations', async () => {
+            let locs
+            locs = await contract.allLocations()
+            console.log(locs[0])
+        })
+        it('returns all token IDs', async () => {
+            let ids
+            ids = await contract.allTokenIds()
+            console.log(ids[0])
+        })
+        it('returns majority owner', async () => {
+            let majority
+            majority = await contract.majorityOwner(accounts[0],"37469746472611036771321737221860966457933893121606967751051525161688519460473")
+            console.log(majority)
+            assert.equal(majority,true)
+        })
+    })
+
     describe('transfering', async () => {
         it('transfers a token', async () => {
             //console.log("Transferring.......")
