@@ -16,26 +16,26 @@ class App extends Component {
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       await window.ethereum.enable();
-      console.log("WINDOW = ETHERIUM");
+      // console.log("WINDOW = ETHERIUM");
     } else if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider);
-      console.log("WINDOW = WEB3");
+      // console.log("WINDOW = WEB3");
     } else {
       window.alert("Non-Ethereum browser detected. Consider trying MetaMask!");
     }
   }
 
   async loadBlockchainData() {
-    console.log("loading blockchain data");
+    // console.log("loading blockchain data");
     const web3 = window.web3;
     const accounts = await web3.eth.getAccounts();
     this.setState({ account: accounts[0] });
-    console.log("loaded account");
+    // console.log("loaded account");
 
     const networkId = await web3.eth.net.getId();
     const networkREIData = REI.networks[networkId];
 
-    console.log("loaded Network data");
+    // console.log("loaded Network data");
     if (networkREIData) {
       const abi = REI.abi;
       const address = networkREIData.address;
@@ -46,17 +46,40 @@ class App extends Component {
       const totalREISupply = await REIContract.methods.totalSupply().call();
       this.setState({ totalREISupply });
 
+      const ownerShares = await REIContract.methods.allOwnerShares(this.state.account).call();
+      const tokenShares = {}
+      for(var i = 0; i< ownerShares.tokens.length; i++){
+        tokenShares[ownerShares.tokens[i]] = ownerShares.shares[i]
+      }
+
       for (var i = 0; i < totalREISupply; i++) {
         const REILocation = await REIContract.methods.locations(i).call();
         const REIId = await REIContract.methods.tokenIds(i).call();
 
-        const REIObject = { id: REIId, location: REILocation };
+        // console.log("shares")
+        var shares = tokenShares[REIId]
+        shares = shares? shares: 0
+        // console.log(shares)
+
+
+        const REIObject = { id: REIId, location: REILocation, shares:shares };
 
         this.setState({
           REIs: [...this.state.REIs, REIObject],
         });
       }
-      console.log("reis", this.state.REIs);
+      const sortFunction = (a,b) => {
+        if (a.shares < b.shares){
+          return -1
+        } else if (b.shares < a.shares){
+          return 1
+        }
+        return 0
+      }
+      const sortedREIs = this.state.REIs.sort((a,b) => (parseInt(a.shares)>parseInt(b.shares))?-1:1)
+      
+      this.setState({REIs: sortedREIs})
+      // console.log("reis", this.state.REIs);
     } else {
       window.alert("Smart contract not deployed to this network");
     }
@@ -80,13 +103,13 @@ class App extends Component {
         const id = receipt.events.Transfer.returnValues.tokenId;
         const REIObject = { location: location, id: id };
         this.setState({ REIs: [...this.state.REIs, REIObject] });
-        console.log("mint receipt", receipt);
+        // console.log("mint receipt", receipt);
       });
   };
 
   burn = (tokenId) => {
-    console.log("burning");
-    console.log(tokenId);
+    // console.log("burning");
+    // console.log(tokenId);
     this.state.REIContract.methods
       .burn(tokenId)
       .send({ from: this.state.account })
@@ -94,13 +117,13 @@ class App extends Component {
         // const id = receipt.events.Transfer.returnValues.tokenId
         // const REIObject = {location: location, id: id}
         // this.setState({REIs: [...this.state.REIs, REIObject]})
-        console.log("burn receipt", receipt);
-        console.log("burned");
+        // console.log("burn receipt", receipt);
+        // console.log("burned");
       });
   };
   transfer = (tokenId, toAddress, amount) => {
-    console.log("transferring");
-    console.log(tokenId);
+    // console.log("transferring");
+    // console.log(tokenId);
     this.state.REIContract.methods
       .transfer(toAddress, tokenId, amount)
       .send({ from: this.state.account })
@@ -108,8 +131,8 @@ class App extends Component {
         // const id = receipt.events.Transfer.returnValues.tokenId
         // const REIObject = {location: location, id: id}
         // this.setState({REIs: [...this.state.REIs, REIObject]})
-        console.log("transfer receipt", receipt);
-        console.log("transferred");
+        // console.log("transfer receipt", receipt);
+        // console.log("transferred");
       });
   };
 
@@ -173,7 +196,8 @@ class App extends Component {
                     width: "80%",
                     "min-width": "200px",
                     "max-width": "800px",
-                    borderColor: "black",
+                    borderColor: REIObj.shares? 'green':'black',
+                    borderWidth:3
                   }}
                 >
                   <div>
@@ -207,9 +231,9 @@ class App extends Component {
                       />
                     </div>
                   </div>
+                  { REIObj.shares? (<div>
                   <form
                     onSubmit={(event) => {
-                      event.preventDefault();
                       const toAddress = this.toAddress.value;
                       const amount = this.amount.value;
                       const id = REIObj.id;
@@ -217,7 +241,8 @@ class App extends Component {
                     }}
                     className="mb-3"
                   >
-                    <h4>Transfer</h4>
+                    <h4>Transfer up to {REIObj.shares} units</h4>
+                    <p>There are 100 units total per token (1 unit = 1%)</p>
                     <div className="input-group m-1">
                       <div className="input-group-prepend">
                         <div
@@ -231,6 +256,7 @@ class App extends Component {
                         type="text"
                         className="form-control"
                         placeholder="e.g. 0xd06609547D66268BD9B11Eb28A0B5b23e973B3D7"
+                        required
                         ref={(input) => {
                           this.toAddress = input;
                         }}
@@ -249,6 +275,7 @@ class App extends Component {
                         type="number"
                         className="form-control"
                         placeholder="e.g. 1"
+                        required
                         ref={(input) => {
                           this.amount = input;
                         }}
@@ -261,17 +288,22 @@ class App extends Component {
                       value="Transfer"
                     ></input>
                   </form>
-                  <h4>Burn</h4>
+                  {REIObj.shares - 100?null:
+                  (<div>
+                  <h4>Burn Token</h4>
                   <button
-                    className="btn btn-danger"
+                    className="btn btn-danger w-100"
                     onClick={() => {
                       this.burn(REIObj.id);
                     }}
                   >
                     Burn me
                   </button>
+                  </div>)}
+                  </div>
+                  ):null}
                 </div>
-              );
+              )
             })}
           </div>
         </div>
