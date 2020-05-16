@@ -98,6 +98,12 @@ contract('DNFT', (accounts) => {
             console.log(majority)
             assert.equal(majority,true)
         })
+        it('gets shares of address', async () => {
+            let shares
+            shares = await contract.ownerSharesforToken(accounts[0],"37469746472611036771321737221860966457933893121606967751051525161688519460473")
+            console.log(shares)
+            assert.equal(shares,100)
+        })
     })
 
     describe('transfering', async () => {
@@ -119,6 +125,12 @@ contract('DNFT', (accounts) => {
             //console.log(newOwner)
             assert.equal(newOwner,toAddress,"token has new owner")
         })
+        it('gets shares of address', async () => {
+            let shares
+            shares = await contract.ownerSharesforToken(accounts[0],"37469746472611036771321737221860966457933893121606967751051525161688519460473")
+            console.log(shares)
+            assert.equal(shares,40)
+        })
     })
 
     describe('burning', async () => {
@@ -132,6 +144,12 @@ contract('DNFT', (accounts) => {
             //await contract.transfer(toAddress,tokenId,40)
             await contract.burn(tokenId)
             await contract.ownerOf(tokenId).should.be.rejected;
+        })
+        it('gets shares of address', async () => {
+            let shares
+            shares = await contract.ownerSharesforToken(accounts[0],"90634424011424456223642745264536225242414218275456761356731043401208726823481")
+            console.log(shares)
+            assert.equal(shares,0)
         })
     })
 })

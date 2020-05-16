@@ -114,7 +114,7 @@ contract DNFT is ERC721 {
         _addShareToNewOwner(_to, _tokenId, _units);
         _addNewOwnerHoldingsToToken(_to, _tokenId, _units);
 
-        if (ownerToTokenShare[_to][_tokenId] >= 50) {
+        if (ownerToTokenShare[_to][_tokenId] > 50) {
             _transfer(ownerOf(_tokenId), _to, _tokenId);
         }
 
