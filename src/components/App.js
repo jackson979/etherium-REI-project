@@ -92,6 +92,8 @@ class App extends Component {
       account: "",
       totalREISupply: 0,
       REIs: [],
+      toAddress: "",
+      transferUnits: 0,
     };
   }
 
@@ -121,8 +123,11 @@ class App extends Component {
         // console.log("burned");
       });
   };
-  transfer = (tokenId, toAddress, amount) => {
-    // console.log("transferring");
+  transfer = (tokenId) => {
+    console.log("transferring");
+    console.log(this)
+    const toAddress = this.state.toAddress
+    const amount = this.state.transferUnits
     // console.log(tokenId);
     this.state.REIContract.methods
       .transfer(toAddress, tokenId, amount)
@@ -131,7 +136,7 @@ class App extends Component {
         // const id = receipt.events.Transfer.returnValues.tokenId
         // const REIObject = {location: location, id: id}
         // this.setState({REIs: [...this.state.REIs, REIObject]})
-        // console.log("transfer receipt", receipt);
+        console.log("transfer receipt", receipt);
         // console.log("transferred");
       });
   };
@@ -194,8 +199,8 @@ class App extends Component {
                   className="m-3 p-2 card flex mx-auto"
                   style={{
                     width: "80%",
-                    "min-width": "200px",
-                    "max-width": "800px",
+                    "minWidth": "200px",
+                    "maxWidth": "800px",
                     borderColor: REIObj.shares? 'green':'black',
                     borderWidth:3
                   }}
@@ -204,40 +209,40 @@ class App extends Component {
                     <img width="100px" height="100px" src="building.jpg"></img>
                   </div>
 
-                  <div class="input-group mb-1 d-flex">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">Token Id</span>
+                  <div className="input-group mb-1 d-flex">
+                    <div className="input-group-prepend">
+                      <span className="input-group-text">Token Id</span>
                     </div>
                     <div className="flex-fill">
                       <input
                         type="text"
                         className="form-control word-wrap"
                         placeholder={REIObj.id}
-                        readonly="true"
+                        readOnly={true}
                       />
                     </div>
                   </div>
 
-                  <div class="input-group mb-3 d-flex">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">Location</span>
+                  <div className="input-group mb-3 d-flex">
+                    <div className="input-group-prepend">
+                      <span className="input-group-text">Location</span>
                     </div>
                     <div className="flex-fill">
                       <input
                         type="text"
                         className="form-control word-wrap"
                         placeholder={REIObj.location}
-                        readonly="true"
+                        readOnly={true}
                       />
                     </div>
                   </div>
                   { REIObj.shares? (<div>
                   <form
                     onSubmit={(event) => {
-                      const toAddress = this.toAddress.value;
-                      const amount = this.amount.value;
+                      console.log(this)
+                      event.preventDefault()
                       const id = REIObj.id;
-                      this.transfer(id, toAddress, amount);
+                      this.transfer(id);
                     }}
                     className="mb-3"
                   >
@@ -257,9 +262,7 @@ class App extends Component {
                         className="form-control"
                         placeholder="e.g. 0xd06609547D66268BD9B11Eb28A0B5b23e973B3D7"
                         required
-                        ref={(input) => {
-                          this.toAddress = input;
-                        }}
+                        onChange={(event) => this.setState({toAddress:event.target.value})}
                       />
                     </div>
                     <div className="input-group m-1">
@@ -276,9 +279,7 @@ class App extends Component {
                         className="form-control"
                         placeholder="e.g. 1"
                         required
-                        ref={(input) => {
-                          this.amount = input;
-                        }}
+                        onChange={(event) => this.setState({transferUnits:event.target.value})}
                       />
                     </div>
 

@@ -75,7 +75,7 @@ contract('DNFT', (accounts) => {
             for(var i = 1; i <= totalSupply; i++) {
                 id = await contract.tokenIds(i-1)
                 //result.push(id)
-                console.log(id.toString())
+                //console.log(id.toString())
             }
 
         })
@@ -85,23 +85,23 @@ contract('DNFT', (accounts) => {
         it('returns all locations', async () => {
             let locs
             locs = await contract.allLocations()
-            console.log(locs[0])
+            //console.log(locs[0])
         })
         it('returns all token IDs', async () => {
             let ids
             ids = await contract.allTokenIds()
-            console.log(ids[0])
+            //console.log(ids[0])
         })
         it('returns majority owner', async () => {
             let majority
             majority = await contract.majorityOwner(accounts[0],"37469746472611036771321737221860966457933893121606967751051525161688519460473")
-            console.log(majority)
+            //console.log(majority)
             assert.equal(majority,true)
         })
         it('gets shares of address', async () => {
             let shares
             shares = await contract.ownerSharesforToken(accounts[0],"37469746472611036771321737221860966457933893121606967751051525161688519460473")
-            console.log(shares)
+            //console.log(shares)
             assert.equal(shares,100)
         })
     })
@@ -128,7 +128,7 @@ contract('DNFT', (accounts) => {
         it('gets shares of address', async () => {
             let shares
             shares = await contract.ownerSharesforToken(accounts[0],"37469746472611036771321737221860966457933893121606967751051525161688519460473")
-            console.log(shares)
+            //console.log(shares)
             assert.equal(shares,40)
         })
     })
@@ -148,7 +148,7 @@ contract('DNFT', (accounts) => {
         it('gets shares of address', async () => {
             let shares
             shares = await contract.ownerSharesforToken(accounts[0],"90634424011424456223642745264536225242414218275456761356731043401208726823481")
-            console.log(shares)
+            //console.log(shares)
             assert.equal(shares,0)
         })
     })
